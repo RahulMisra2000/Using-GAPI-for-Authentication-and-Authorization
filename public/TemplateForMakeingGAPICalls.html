@@ -1,0 +1,96 @@
+<!-- MAKE A COPY OF THIS AS THE STARTING POINT 
+I got it from here https://github.com/google/google-api-javascript-client/blob/master/samples/authSample.html
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Say hello using the People API</title>
+    <meta charset='utf-8' />
+  </head>
+  <body>
+    <p>TEMPLATE - Make a copy of this and make the changes</p>
+
+    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="signout-button" style="display: none;">Sign Out</button>
+
+    <div id="content"></div>
+
+    <script type="text/javascript">
+      var apiKey = 'XXXXXXXXXXX';
+      var discoveryDocs = ["XXXXXXXXXXXXXXXXX"];
+      var clientId = 'XXXXXXXXXXXXXXXXXXXX';
+
+      var scopes = 'profile';
+
+      var authorizeButton = document.getElementById('authorize-button');
+      var signoutButton = document.getElementById('signout-button');
+
+      function handleClientLoad() {
+        // Load the API client and auth2 libraries
+        // The client is used to make Google API calls and the auth2 library is for doing Google Sign-in
+        gapi.load('client:auth2', initClient);
+      }
+
+      function initClient() {
+        gapi.client.init({
+            apiKey: apiKey,
+            discoveryDocs: discoveryDocs,
+            clientId: clientId,
+            scope: scopes
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        });
+      }
+
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+          makeApiCall();
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      // Load the API and make an API call.  Display the results on the screen.
+      function makeApiCall() {
+
+        /* --- REPLACE with the API you want to call 
+        
+        Since the discovery document for People API is loaded above, ".people" got added to gapi.client 
+        and so we can just call methods like people.get, etc  as shown below
+
+        gapi.client.people.people.get({
+          'resourceName': 'people/me',
+          'requestMask.includeField': 'person.names'
+        }).then(function(resp) {
+          var p = document.createElement('p');
+          var name = resp.result.names[0].givenName;
+          p.appendChild(document.createTextNode('Hello, '+name+'!'));
+          document.getElementById('content').appendChild(p);
+        });
+        */
+      }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" 
+      onload="this.onload=function(){};handleClientLoad()" 
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
+</html>
