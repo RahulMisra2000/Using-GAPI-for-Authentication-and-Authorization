@@ -4,11 +4,11 @@ I got it from here https://github.com/google/google-api-javascript-client/blob/m
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Say hello using the People API</title>
+    <title>Calling Google Photos API using GAPI</title>
     <meta charset='utf-8' />
   </head>
   <body>
-    <p>TEMPLATE - Make a copy of this and make the changes</p>
+    <p>Calling Google Photos API using GAPI</p>
 
     <button id="authorize-button" style="display: none;">Authorize</button>
     <button id="signout-button" style="display: none;">Sign Out</button>
@@ -17,10 +17,10 @@ I got it from here https://github.com/google/google-api-javascript-client/blob/m
 
     <script type="text/javascript">
       var apiKey = 'AIzaSyA_6P8DB2lLryI-pZS2ig_qoh4ods1GQ2M';
-      var discoveryDocs = ["XXXXXXXXXXXXXXXXX"];
+      var discoveryDocs = ["https://photoslibrary.googleapis.com/$discovery/rest?version=v1"];
       var clientId = '635832843718-4scpc426erku7u7gom04dhko3me56jv1.apps.googleusercontent.com';
 
-      var scopes = 'https://www.googleapis.com/auth/photoslibrary';
+      var scopes = 'https://www.googleapis.com/auth/photoslibrary https://www.googleapis.com/auth/photoslibrary.readonly https://www.googleapis.com/auth/photoslibrary.readonly.appcreateddata';
 
       var authorizeButton = document.getElementById('authorize-button');
       var signoutButton = document.getElementById('signout-button');
@@ -51,6 +51,15 @@ I got it from here https://github.com/google/google-api-javascript-client/blob/m
 
       function updateSigninStatus(isSignedIn) {
         if (isSignedIn) {
+
+          // For debugging/Info
+          console.dir(gapi.client);               // just to see what methods are attached to gapi.client by discovery document
+          console.log(gapi.client.getToken());    // This returns an object with AccessToken, IdentityToken, expiration, scopes, etc
+                                                  // With the AT, the possibilities are endless. You can,if you wanted to, 
+                                                  // make pure http calls to google apis w/o using gapi to make api calls since you 
+                                                  // have the AT BUT if the discovery document is there then it will add the methods
+                                                  // to gapi.client and you can simply use it to make api calls
+
           authorizeButton.style.display = 'none';
           signoutButton.style.display = 'block';
           makeApiCall();
@@ -71,21 +80,13 @@ I got it from here https://github.com/google/google-api-javascript-client/blob/m
       // Load the API and make an API call.  Display the results on the screen.
       function makeApiCall() {
 
-        /* --- REPLACE with the API you want to call 
-        
-        Since the discovery document for People API is loaded above, ".people" got added to gapi.client 
-        and so we can just call methods like people.get, etc  as shown below
+        gapi.client.photoslibrary.mediaItems.list({})
+        .then(function(response) {
+                // Handle the results here (response.result has the parsed body).
+                console.log("Response", response);
+              },
+              function(err) { console.error("Execute error", err); });
 
-        gapi.client.people.people.get({
-          'resourceName': 'people/me',
-          'requestMask.includeField': 'person.names'
-        }).then(function(resp) {
-          var p = document.createElement('p');
-          var name = resp.result.names[0].givenName;
-          p.appendChild(document.createTextNode('Hello, '+name+'!'));
-          document.getElementById('content').appendChild(p);
-        });
-        */
       }
     </script>
     <script async defer src="https://apis.google.com/js/api.js" 
