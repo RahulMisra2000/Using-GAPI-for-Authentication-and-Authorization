@@ -1,16 +1,16 @@
-<!-- MAKE A COPY OF THIS AS THE STARTING POINT 
-I got it from here https://github.com/google/google-api-javascript-client/blob/master/samples/authSample.html
--->
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Calling Google Photos API using GAPI</title>
+    <title>Google Photos</title>
     <meta charset='utf-8' />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   </head>
   <body>
     <p>Calling Google Photos API using GAPI</p>
 
-    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="authorize-button" style="display: none;">Authenticate(Login with Google) & Authorize(Scopes)</button>
+    <button id="api-button" style="display: none;">List photos in Console</button>
     <button id="signout-button" style="display: none;">Sign Out</button>
 
     <div id="content"></div>
@@ -23,6 +23,7 @@ I got it from here https://github.com/google/google-api-javascript-client/blob/m
       var scopes = 'https://www.googleapis.com/auth/photoslibrary https://www.googleapis.com/auth/photoslibrary.readonly https://www.googleapis.com/auth/photoslibrary.readonly.appcreateddata';
 
       var authorizeButton = document.getElementById('authorize-button');
+      var apiButton = document.getElementById('api-button');
       var signoutButton = document.getElementById('signout-button');
 
       function handleClientLoad() {
@@ -37,18 +38,20 @@ I got it from here https://github.com/google/google-api-javascript-client/blob/m
             discoveryDocs: discoveryDocs,
             clientId: clientId,
             scope: scopes
-        }).then(function () {
-          // Listen for sign-in state changes.
-          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-          // Handle the initial sign-in state.
-          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+        }).then(function () {        
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);     // Listen for sign-in state changes.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());      // Handle the initial sign-in state.
 
           authorizeButton.onclick = handleAuthClick;
           signoutButton.onclick = handleSignoutClick;
+          apiButton.onclick = handleApiClick;
+        },
+        function(err){
+          console.log("Error:", err);
         });
       }
 
+      /* Just updates the UI */
       function updateSigninStatus(isSignedIn) {
         if (isSignedIn) {
 
@@ -61,26 +64,34 @@ I got it from here https://github.com/google/google-api-javascript-client/blob/m
                                                   // to gapi.client and you can simply use it to make api calls
 
           authorizeButton.style.display = 'none';
-          signoutButton.style.display = 'block';
-          makeApiCall();
+          signoutButton.style.display = 'block'; 
+          apiButton.style.display = 'block';          
         } else {
           authorizeButton.style.display = 'block';
           signoutButton.style.display = 'none';
+          apiButton.style.display = 'none'; 
         }
       }
 
       function handleAuthClick(event) {
         gapi.auth2.getAuthInstance().signIn();
+        console.log("Signing In...");
       }
 
       function handleSignoutClick(event) {
         gapi.auth2.getAuthInstance().signOut();
+        console.log("Signing out...");
+      }
+
+      function handleApiClick(event) {
+        makeApiCall();
       }
 
       // Load the API and make an API call.  Display the results on the screen.
       function makeApiCall() {
+       console.log("Making Google Photos API Call");
 
-        gapi.client.photoslibrary.mediaItems.list({})
+       gapi.client.photoslibrary.mediaItems.list({})
         .then(function(response) {
                 // Handle the results here (response.result has the parsed body).
                 console.log("Response", response);
